@@ -11,7 +11,7 @@ This version of the `minotaur` codebase is for @evgeniiaraz
 
 Hi Genie!
 
-This is a run down of the `minotaur` code to help you get started. This project uses [AllenNLP](https://github.com/allenai/allennlp) (RIP) and the full environment is in `minotaur.yaml` (likely including some unnecessary packages).
+This is a run down of the `minotaur` code to help you get started. This project uses [AllenNLP](https://github.com/allenai/allennlp) (RIP) and the full environment is in `requirements.txt`.
 
 You specify an experiment as a `json` config file and then run this using:
 
@@ -26,6 +26,7 @@ allennlp train "${EXP_CONFIG}" \
 ```
 
 I've included two example JSON files as examples. Each experiment needs these keys:
+
     1. "dataset_reader" - How to read text file inputs to `Instance` objects for training
     2.  "data_loader" - How data is loaded from the dataset readers and passed to the trainer. There will also be a "validation_data_loader" if the validation data is loaded differently to the Train data. 
     3. "model" - specification of the model to train
@@ -40,9 +41,13 @@ If you want to change anything in this setup, you can change the "type" in the J
 decorator above the class name. Each section in the JSON corresponds to the __init__ of each class and any subclass objects spawn a child JSON bracket (e.g. the "decoder" subsection of the "model").
 
 The most important information for Minotaur is:
+
     - `model/bottleneck.py`: defines the variational reparameterization between Encoder and Decoder. This makes the Seq2Seq model like a VAE/WAE and provides the ELBO loss. 
+
     - `model/seq2seq_bottlneck.py`: defines the Seq2Seq model using a `Bottleneck` between Encoder and Decoder. 
+
     - `trainer/divergence_kernel.py`: defines the Alignment signal between encoded states. Looks a lot like `Bottleneck` but only calculates distances between given Tensors of states. 
+    
     - `trainer/episodic_trainer2.py`: This is the training loop tying everything together. Read this if you want to see how I built the model. See `trainer/episodic_trainer4_nonpar.py` for how the same loop runs when the encoded states are not parallel.
 
 Everywhere should have annotations and detail about Tensor sizes to guide you. Let me know if you have questions/need a hand! 
