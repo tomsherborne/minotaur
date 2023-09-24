@@ -1,0 +1,158 @@
+{
+	"data_loader": {
+		"num_instances_per_dataset": {
+			"inner": 31260,
+			"outer": 1260
+		},
+		"scheduler": {
+			"batch_size": 4,
+			"type": "homogeneous_roundrobin"
+		},
+		"shuffle": true,
+		"type": "inner_outer"
+	},
+	"dataset_reader": {
+		"readers": {
+			"inner": {
+				"source_pretrained_model_name": "big/mbart-large-50-many-to-many-mmt",
+				"source_token_namespace": "src_tokens",
+				"target_token_indexers": {
+					"tgt_tokens": {
+						"namespace": "tgt_tokens",
+						"type": "single_id"
+					}
+				},
+				"target_tokenizer": {
+					"type": "whitespace"
+				},
+				"type": "seq2seq_multi_input"
+			},
+			"outer": {
+				"source_pretrained_model_name": "big/mbart-large-50-many-to-many-mmt",
+				"source_token_namespace": "src_tokens",
+				"target_token_indexers": {
+					"tgt_tokens": {
+						"namespace": "tgt_tokens",
+						"type": "single_id"
+					}
+				},
+				"target_tokenizer": {
+					"type": "whitespace"
+				},
+				"type": "seq2seq_multi_input"
+			}
+		},
+		"type": "multitask"
+	},
+	"model": {
+		"bottleneck": {
+			"alpha_aggregate": 0.2,
+			"beta_individual": 0.01,
+			"individual_posterior_kernel": "kl_div",
+			"model_dim": 1024,
+			"num_attention_heads": 16,
+			"type": "joint_individual_aggregate_wasserstein",
+			"use_final_linear": false
+		},
+		"decoder": {
+			"beam_size": 5,
+			"decoder_net": {
+				"attention_dropout_prob": 0.1,
+				"decoding_dim": 1024,
+				"dropout_prob": 0.1,
+				"feedforward_hidden_dim": 4096,
+				"num_attention_heads": 16,
+				"num_layers": 6,
+				"residual_dropout_prob": 0.2,
+				"target_embedding_dim": 1024,
+				"type": "stacked_self_attention"
+			},
+			"label_smoothing_ratio": 0.01,
+			"max_decoding_steps": 250,
+			"target_embedder": {
+				"embedding_dim": 1024,
+				"vocab_namespace": "tgt_tokens"
+			},
+			"target_namespace": "tgt_tokens",
+			"tensor_based_metric": "bleu",
+			"tie_output_embedding": false,
+			"type": "auto_regressive_seq_decoder_mod"
+		},
+		"encoder": {
+			"feedforward_hidden_dim": 4096,
+			"input_dim": 1024,
+			"num_attention_heads": 16,
+			"num_layers": 1,
+			"type": "transformer_encoder",
+			"use_positional_encoding": false
+		},
+		"source_text_embedder": {
+			"token_embedders": {
+				"src_tokens": {
+					"model_name": "big/mbart-large-50-many-to-many-mmt",
+					"sub_module": "encoder",
+					"train_parameters": false,
+					"type": "pretrained_transformer"
+				}
+			}
+		},
+		"type": "seq2seq_bottleneck"
+	},
+	"numpy_seed": 1,
+	"pytorch_seed": 1,
+	"random_seed": 1,
+	"train_data_path": {
+		"inner": "data/atis_example/en/en.train",
+		"outer": "data/atis_example/all.target.mt.100"
+	},
+	"trainer": {
+		"callbacks": [
+			{
+				"bottleneck_loss_weight_max": 0.75,
+				"type": "bottleneck_loss_callback",
+				"warmup_end": 8000,
+				"warmup_start": 2000
+			}
+		],
+		"checkpointer": {
+			"keep_most_recent_by_count": 1
+		},
+		"cuda_device": 0,
+		"divergence_kernel": {
+			"type": "l2_wasserstein"
+		},
+		"divergence_kernel_scaler": 1.0000000000000002e-06,
+		"enable_default_callbacks": false,
+		"grad_norm": 1,
+		"inner_steps": 50,
+		"learning_rate_scheduler": {
+			"type": "polynomial_decay",
+			"warmup_steps": 2000
+		},
+		"num_epochs": 50,
+		"num_gradient_accumulation_steps": 6,
+		"optimizer": {
+			"lr": 0.0001,
+			"type": "adam",
+			"weight_decay": 0
+		},
+		"patience": 10,
+		"run_confidence_checks": false,
+		"type": "episodic_trainer_v4",
+		"use_divergence_kernel": true,
+		"use_outer_loop": true,
+		"validation_metric": "-loss"
+	},
+	"validation_data_loader": {
+		"scheduler": {
+			"batch_size": 1,
+			"type": "homogeneous_roundrobin"
+		},
+		"shuffle": false,
+		"type": "multitask"
+	},
+	"validation_data_path": {
+		"inner": "data/atis_example/en/en.dev",
+		"outer": "data/atis_example/all.dev"
+	}
+}
