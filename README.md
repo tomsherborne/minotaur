@@ -2,15 +2,11 @@
 ### Tom Sherborne, Tom Hosking, Mirella Lapata
 ### @tomsherborne @tomhosking 
 
-To appear in TACL 2023 and presented at EMNLP 2023.
-Read the ArXiv version [here](https://arxiv.org/abs/2307.04096)
+Read the article on MIT Press [here](https://direct.mit.edu/tacl/article/doi/10.1162/tacl_a_00611/118297/Optimal-Transport-Posterior-Alignment-for-Cross).
 
-This version of the `minotaur` codebase is for @evgeniiaraz 
+This version of the `minotaur` codebase is originally made for @evgeniiaraz 
 
 -------
-
-Hi Genie!
-
 This is a run down of the `minotaur` code to help you get started. This project uses [AllenNLP](https://github.com/allenai/allennlp) (RIP) and the full environment is in `requirements.txt`.
 
 You specify an experiment as a `json` config file and then run this using:
